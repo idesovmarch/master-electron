@@ -1,23 +1,43 @@
 // Modules
 const {app, BrowserWindow} = require('electron')
 
+setTimeout( () => {
+console.log('Checking Ready => ' + app.isReady())
+}, 2000)
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow
+let mainWindow, secondaryWindow
 
 // Create a new BrowserWindow when `app` is ready
 function createWindow () {
 
   mainWindow = new BrowserWindow({
     width: 1000, height: 800,
-    webPreferences: { nodeIntegration: true }
+    webPreferences: { nodeIntegration: true },
+    backgroundColor: '#2B2E3B'
   })
-
+  secondaryWindow = new BrowserWindow({
+    width: 600, height: 300,
+    webPreferences: { nodeIntegration: true },
+    parent: mainWindow,
+    modal: true,
+    show: false
+  })
   // Load index.html into the new BrowserWindow
   mainWindow.loadFile('index.html')
+  secondaryWindow.loadFile('secondary.html')
+
+  setTimeout( () => {
+    secondaryWindow.show()
+    setTimeout( () => {
+      secondaryWindow.close()
+      secondaryWindow = null
+    }, 3000)
+  }, 3000)
 
   // Open DevTools - Remove for PRODUCTION!
-  mainWindow.webContents.openDevTools();
+  //mainWindow.webContents.openDevTools();
+
 
   // Listen for window being closed
   mainWindow.on('closed',  () => {
@@ -25,8 +45,12 @@ function createWindow () {
   })
 }
 
+
+
 // Electron `app` is ready
-app.on('ready', createWindow)
+app.on('ready', () => { 
+createWindow()
+})
 
 // Quit when all windows are closed - (Not macOS - Darwin)
 app.on('window-all-closed', () => {
