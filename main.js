@@ -1,5 +1,6 @@
 // Modules
 const {app, BrowserWindow} = require('electron')
+const windowStateKeeper = require('electron-window-state')
 
 setTimeout( () => {
 console.log('Checking Ready => ' + app.isReady())
@@ -11,40 +12,38 @@ let mainWindow, secondaryWindow
 // Create a new BrowserWindow when `app` is ready
 function createWindow () {
 
+  let winState = windowStateKeeper({
+    defaultWidth: 1000, defaultHeight: 800
+  })
+
   mainWindow = new BrowserWindow({
-    width: 1000, height: 800,
+    width: winState.width, height: winState.height,
+    x: winState.x, y: winState.y,
+    minWidth: 300, minHeight: 150,
     webPreferences: { nodeIntegration: true },
-    backgroundColor: '#2B2E3B'
+    backgroundColor: '#2B2E3B',
+   
   })
-  secondaryWindow = new BrowserWindow({
-    width: 600, height: 300,
-    webPreferences: { nodeIntegration: true },
-    parent: mainWindow,
-    modal: true,
-    show: false
-  })
+
+  
+  
   // Load index.html into the new BrowserWindow
   mainWindow.loadFile('index.html')
-  secondaryWindow.loadFile('secondary.html')
-
-  setTimeout( () => {
-    secondaryWindow.show()
-    setTimeout( () => {
-      secondaryWindow.close()
-      secondaryWindow = null
-    }, 3000)
-  }, 3000)
+ 
 
   // Open DevTools - Remove for PRODUCTION!
   //mainWindow.webContents.openDevTools();
 
+  winState.manage(mainWindow)
 
   // Listen for window being closed
   mainWindow.on('closed',  () => {
     mainWindow = null
   })
-}
 
+
+
+}
 
 
 // Electron `app` is ready
